@@ -1,0 +1,38 @@
+!pip install streamlit
+import joblib
+import streamlit as st
+import numpy as np
+import pandas as pd
+
+# Load the model and selected features
+model, selected_features = joblib.load(r"house.joblib")
+
+# Define prediction function
+def predict_house_price(grade, view, bathrooms, sqft_above, sqft_living):
+    input_df = pd.DataFrame([{
+        'grade': grade,
+        'view': view,
+        'bathrooms': bathrooms,
+        'sqft_above': sqft_above,
+        'sqft_living': sqft_living
+    }])
+
+    input_df = input_df[selected_features]
+    prediction = model.predict(input_df)
+    return prediction[0]  # Return the prediction
+
+st.title("House Price Predictions")
+st.write("Enter the house details to predict its price.")
+
+grade = st.number_input("Grade (1-13)", min_value=1, max_value=13, value=5)
+view = st.slider("View (0-4)", min_value=0, max_value=4, value=0)
+bathrooms = st.number_input("Bathrooms", min_value=0.0, max_value=10.0, value=2.0, step=0.5)
+sqft_above = st.slider("Square Feet Above", min_value=0, max_value=10000, value=1500)
+sqft_living = st.number_input("Square Feet Living", min_value=0, max_value=10000, value=2000)
+
+if st.button("Predict Price"):
+    price = predict_house_price(grade, view, bathrooms, sqft_above, sqft_living)
+    st.success(f"The predicted house price is: ₹{price:,.2f}")
+    st.balloons()
+    st.snow()
+    st.image("https://media.giphy.com/media/26tOZ42Mg6pbTUPHW/giphy.gif", width=500)

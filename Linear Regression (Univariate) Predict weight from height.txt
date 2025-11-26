@@ -1,0 +1,40 @@
+x = [[151], [174], [138], [186], [128], [136], [179], [163], [152], [131]]
+
+y = [63, 81, 56, 91, 47, 57, 76, 72, 62, 48]
+
+from sklearn.linear_model import LinearRegression
+
+reg = LinearRegression()
+
+reg.fit(x, y)
+
+reg.coef_
+
+reg.intercept_
+
+reg.predict([[150]])
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Scatter plot
+plt.scatter(x, y, color="blue", label="Data points")
+
+# Regression line
+x_range = np.linspace(min(x)[0], max(x)[0], 100).reshape(-1,1)
+y_pred_line = reg.predict(x_range)
+plt.plot(x_range, y_pred_line, color="red", label="Regression line")
+
+plt.xlabel("Height (cm)")
+plt.ylabel("Weight (kg)")
+plt.legend()
+plt.show()
+
+# Residuals
+residuals = np.array(y) - reg.predict(x)
+plt.scatter(reg.predict(x), residuals, color="purple")
+plt.axhline(y=0, color="black", linestyle="--")
+plt.xlabel("Predicted values")
+plt.ylabel("Residuals")
+plt.title("Residual Plot")
+plt.show()

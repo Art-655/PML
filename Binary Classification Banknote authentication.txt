@@ -1,0 +1,97 @@
+import pandas as pd
+import numpy as np
+
+df = pd.read_csv('BankNote.csv')
+df.head()
+
+df.shape
+
+df['class'].value_counts()
+
+X = df.drop('class', axis=1)
+y = df['class']
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=42)
+
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+
+model.fit(X_train, y_train)
+
+from sklearn.metrics import classification_report, confusion_matrix
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+print("Confusion Matrix")
+print(confusion_matrix(y_test, y_pred))
+
+model.predict([[0.40614, 1.34920, -1.4501, -0.55949]])
+
+#----------------------------------------------------------------------------
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, roc_auc_score
+
+# Get prediction probabilities (for positive class)
+y_pred_proba = model.predict_proba(X_test)[:, 1]
+
+# Calculate FPR, TPR and thresholds
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba)
+
+# Calculate AUC
+auc_value = roc_auc_score(y_test, y_pred_proba)
+
+# Plotting
+plt.figure(figsize=(6, 6))
+plt.plot(fpr, tpr, label=f'ROC curve (AUC = {auc_value:.2f})', linewidth=2)
+plt.fill_between(fpr, tpr, alpha=0.3, label='AUC area')
+plt.plot([0, 1], [0, 1], 'k--', label='Random guess', linewidth=1)
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve with AUC Shaded')
+plt.legend(loc='lower right')
+plt.grid(True)
+plt.show()
+
+#----------------------------------------------------------------------------
+
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+
+# Logistic Regression
+y_pred_lr = model.predict(X_test)
+print("Logistic Regression Confusion Matrix:\n", confusion_matrix(y_test, y_pred_lr))
+print(classification_report(y_test, y_pred_lr))
+
+# Decision Tree
+from sklearn.tree import DecisionTreeClassifier
+dt = DecisionTreeClassifier(random_state=42)
+dt.fit(X_train, y_train)
+y_pred_dt = dt.predict(X_test)
+print("Decision Tree Confusion Matrix:\n", confusion_matrix(y_test, y_pred_dt))
+print(classification_report(y_test, y_pred_dt))
+
+#----------------------------------------------------------------------------
+
+from sklearn.metrics import roc_curve, roc_auc_score
+import matplotlib.pyplot as plt
+
+# Logistic Regression ROC
+y_pred_proba_lr = model.predict_proba(X_test)[:,1]
+fpr_lr, tpr_lr, _ = roc_curve(y_test, y_pred_proba_lr)
+auc_lr = roc_auc_score(y_test, y_pred_proba_lr)
+
+# Decision Tree ROC
+y_pred_proba_dt = dt.predict_proba(X_test)[:,1]
+fpr_dt, tpr_dt, _ = roc_curve(y_test, y_pred_proba_dt)
+auc_dt = roc_auc_score(y_test, y_pred_proba_dt)
+
+# Plot
+plt.figure(figsize=(7,7))
+plt.plot(fpr_lr, tpr_lr, label=f'Logistic Regression (AUC={auc_lr:.2f})', linewidth=2)
+plt.plot(fpr_dt, tpr_dt, label=f'Decision Tree (AUC={auc_dt:.2f})', linewidth=2, linestyle='--')
+plt.plot([0,1],[0,1],'k--', label='Random Guess')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curves for Banknote Authentication')
+plt.legend()
+plt.grid(True)
+plt.show()
